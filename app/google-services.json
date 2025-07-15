@@ -1,0 +1,125 @@
+{
+  "project_info": {
+    "project_number": "68503838806",
+    "firebase_url": "https://student-innovation-hub-default-rtdb.firebaseio.com",
+    "project_id": "student-innovation-hub",
+    "storage_bucket": "student-innovation-hub.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68503838806:android:206f58e3c79d717e1b5bf7",
+        "android_client_info": {
+          "package_name": "com.example.clearcanvas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVHluFF_eOuKSkWJtnAbuidNux4XAyrp0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68503838806:android:e0820cbeeec754a41b5bf7",
+        "android_client_info": {
+          "package_name": "com.example.fixflow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVHluFF_eOuKSkWJtnAbuidNux4XAyrp0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68503838806:android:7822857274eeb49b1b5bf7",
+        "android_client_info": {
+          "package_name": "com.example.innovationhub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVHluFF_eOuKSkWJtnAbuidNux4XAyrp0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68503838806:android:c8e3970e6becc05a1b5bf7",
+        "android_client_info": {
+          "package_name": "com.example.majialert"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVHluFF_eOuKSkWJtnAbuidNux4XAyrp0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68503838806:android:84350611dd6e588d1b5bf7",
+        "android_client_info": {
+          "package_name": "com.example.studentinnovationhub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVHluFF_eOuKSkWJtnAbuidNux4XAyrp0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68503838806:android:6e159f23f09a403d1b5bf7",
+        "android_client_info": {
+          "package_name": "com.example.theinnovationhub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVHluFF_eOuKSkWJtnAbuidNux4XAyrp0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
