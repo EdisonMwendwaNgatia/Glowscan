@@ -143,7 +143,7 @@ fun LoginScreen(navController: NavController) {
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.image),
-                        contentDescription = "ClearCanvas Logo",
+                        contentDescription = "GlowScan Logo",
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(CircleShape),

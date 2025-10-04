@@ -123,7 +123,7 @@ fun SplashScreen(navController: NavController) {
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.image), // Your app icon
-                        contentDescription = "ClearCanvas Logo",
+                        contentDescription = "GlowScan Logo",
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(CircleShape),
@@ -136,7 +136,7 @@ fun SplashScreen(navController: NavController) {
 
             // App Name with elegant typography
             Text(
-                text = "ClearCanvas",
+                text = "GlowScan",
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,

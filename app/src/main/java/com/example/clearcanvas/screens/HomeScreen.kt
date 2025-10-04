@@ -183,7 +183,7 @@ fun HomeScreen(navController: NavController) {
         AlertDialog(
             onDismissRequest = { showPermissionDialog = false },
             title = { Text("Camera Permission Required") },
-            text = { Text("ClearCanvas needs camera access to analyze your skin. Please grant permission in settings.") },
+            text = { Text("GlowScan needs camera access to analyze your skin. Please grant permission in settings.") },
             confirmButton = {
                 Button(onClick = {
                     showPermissionDialog = false

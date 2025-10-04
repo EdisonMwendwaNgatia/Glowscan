@@ -145,7 +145,7 @@ fun SignUpScreen(navController: NavController) {
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.image),
-                        contentDescription = "ClearCanvas Logo",
+                        contentDescription = "GlowScan Logo",
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(CircleShape),
@@ -158,7 +158,7 @@ fun SignUpScreen(navController: NavController) {
 
             // Welcome Text
             Text(
-                text = "Join ClearCanvas",
+                text = "Join GlowScan",
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
