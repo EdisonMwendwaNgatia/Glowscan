@@ -43,8 +43,6 @@ import com.example.clearcanvas.R
 import com.example.clearcanvas.navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
 
-// Brand Colors (same as splash screen)
-
 val DarkBrown = Color(0xFF5D3A29)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,6 +56,9 @@ fun LoginScreen(navController: NavController) {
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
+    var showForgotPasswordDialog by remember { mutableStateOf(false) }
+    var resetEmail by remember { mutableStateOf("") }
+    var isSendingResetEmail by remember { mutableStateOf(false) }
 
     val auth = FirebaseAuth.getInstance()
 
@@ -332,8 +333,8 @@ fun LoginScreen(navController: NavController) {
                     // Forgot Password Link
                     TextButton(
                         onClick = {
-                            // Handle forgot password
-                            Toast.makeText(context, "Forgot password feature coming soon", Toast.LENGTH_SHORT).show()
+                            resetEmail = email // Pre-fill with current email
+                            showForgotPasswordDialog = true
                         }
                     ) {
                         Text(
@@ -402,5 +403,137 @@ fun LoginScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(32.dp))
         }
+    }
+
+    // Forgot Password Dialog
+    if (showForgotPasswordDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                if (!isSendingResetEmail) {
+                    showForgotPasswordDialog = false
+                }
+            },
+            title = {
+                Text(
+                    "Reset Password",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = DarkBrown
+                )
+            },
+            text = {
+                Column {
+                    Text(
+                        "Enter your email address and we'll send you a link to reset your password.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = PrimaryBrown.copy(alpha = 0.8f)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        value = resetEmail,
+                        onValueChange = { resetEmail = it },
+                        label = { Text("Email Address") },
+                        placeholder = { Text("Enter your email") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Email,
+                                contentDescription = "Email",
+                                tint = PrimaryBrown.copy(alpha = 0.6f)
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Done
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = PrimaryBrown,
+                            unfocusedBorderColor = SecondaryBrown,
+                            focusedLabelColor = PrimaryBrown,
+                            cursorColor = PrimaryBrown
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = !isSendingResetEmail
+                    )
+
+                    if (isSendingResetEmail) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = PrimaryBrown,
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                "Sending reset email...",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = PrimaryBrown.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (resetEmail.isBlank()) {
+                            Toast.makeText(context, "Please enter your email address", Toast.LENGTH_SHORT).show()
+                        } else if (!resetEmail.contains("@") || !resetEmail.contains(".")) {
+                            Toast.makeText(context, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
+                        } else {
+                            isSendingResetEmail = true
+                            auth.sendPasswordResetEmail(resetEmail.trim())
+                                .addOnCompleteListener { task ->
+                                    isSendingResetEmail = false
+                                    showForgotPasswordDialog = false
+
+                                    if (task.isSuccessful) {
+                                        Toast.makeText(
+                                            context,
+                                            "Password reset email sent! Check your inbox.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Failed to send reset email: ${task.exception?.message}",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PrimaryBrown,
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = !isSendingResetEmail
+                ) {
+                    Text("Send Reset Link")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        if (!isSendingResetEmail) {
+                            showForgotPasswordDialog = false
+                        }
+                    },
+                    enabled = !isSendingResetEmail
+                ) {
+                    Text(
+                        "Cancel",
+                        color = PrimaryBrown.copy(alpha = 0.8f)
+                    )
+                }
+            },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(20.dp)
+        )
     }
 }

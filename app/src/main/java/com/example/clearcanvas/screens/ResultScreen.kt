@@ -8,14 +8,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
@@ -25,375 +22,382 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.clearcanvas.data.SkinAnalysisResult
 import com.example.clearcanvas.data.SkincareData
+import com.example.clearcanvas.data.SkincareProduct
 import com.example.clearcanvas.navigation.Screen
+import kotlin.random.Random
 
-
-
-@Suppress("DEPRECATION")
 @Composable
-fun ResultScreen(navController: NavController) {
-    val skinType by remember { mutableStateOf(SkincareData.skinTypes.random()) }
-    val products by remember {
-        mutableStateOf(SkincareData.productMap[skinType]?.shuffled()?.take(3)
-            ?: listOf("General moisturizer", "Gentle cleanser", "SPF 30+ sunscreen"))
-    }
+fun ResultScreen(
+    navController: NavController,
+    analysisData: String? = null
+) {
+    // Parse AI analysis result - NO CACHING, fresh each time
+    val skinAnalysisResult = SkinAnalysisResult.fromJson(analysisData ?: getFreshRandomResult())
 
-    // Animation states
-    val infiniteTransition = rememberInfiniteTransition(label = "result_animation")
+    val skinType = skinAnalysisResult.skinType
+    val confidence = skinAnalysisResult.confidence
+    val concerns = skinAnalysisResult.concerns
 
-    val pulseScale by infiniteTransition.animateFloat(
+    // Get fresh products each time
+    val products = getPersonalizedProducts(skinType, concerns)
+
+    // Animation for success icon
+    val infiniteTransition = rememberInfiniteTransition(label = "success_animation")
+    val scale by infiniteTransition.animateFloat(
         initialValue = 0.95f,
         targetValue = 1.05f,
         animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = FastOutSlowInEasing),
+            animation = tween(1500, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "pulse_scale"
+        label = "scale_animation"
     )
 
-    val shimmerOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "shimmer_offset"
-    )
-
-    // Entry animation
-    var isVisible by remember { mutableStateOf(false) }
-    val entryAlpha by animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0f,
-        animationSpec = tween(800, easing = FastOutSlowInEasing),
-        label = "entry_alpha"
-    )
-
-    LaunchedEffect(Unit) {
-        isVisible = true
-    }
-
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        LightBrown,
+                        LightBrown.copy(alpha = 0.2f),
                         Color.White,
-                        LightBrown.copy(alpha = 0.5f)
+                        LightBrown.copy(alpha = 0.3f)
                     )
                 )
             )
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp)
-                .alpha(entryAlpha),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+        // Success Header
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            shape = RoundedCornerShape(24.dp)
         ) {
-            // Header Section
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.padding(32.dp)
             ) {
-                // Success Icon with animation
-                Card(
+                Box(
                     modifier = Modifier
                         .size(80.dp)
-                        .scale(pulseScale),
-                    shape = CircleShape,
-                    colors = CardDefaults.cardColors(
-                        containerColor = AccentGold.copy(alpha = 0.1f)
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                        .scale(scale)
+                        .clip(CircleShape)
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    Color(0xFF4CAF50).copy(alpha = 0.2f),
+                                    Color(0xFF4CAF50).copy(alpha = 0.1f)
+                                )
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Analysis Complete",
-                            tint = AccentGold,
-                            modifier = Modifier.size(40.dp)
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "Analysis Complete",
+                        modifier = Modifier.size(48.dp),
+                        tint = Color(0xFF4CAF50)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
                     text = "Analysis Complete!",
-                    style = MaterialTheme.typography.headlineLarge.copy(
+                    style = MaterialTheme.typography.headlineMedium.copy(
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DarkBrown
-                    ),
-                    textAlign = TextAlign.Center
+                        color = PrimaryBrown
+                    )
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Your personalized skincare recommendations",
+                    text = "Your personalized skincare journey starts here",
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        color = PrimaryBrown.copy(alpha = 0.7f)
-                    ),
-                    textAlign = TextAlign.Center
+                        color = SecondaryBrown,
+                        textAlign = TextAlign.Center
+                    )
                 )
             }
+        }
 
-            // Skin Type Result Card
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp)),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
-            ) {
+        // Skin Type Card
+        SkinTypeCard(skinType, confidence, concerns)
+
+        // Products Card
+        ProductsCard(products)
+
+        // Dermatologist Card
+        DermatologistCard(navController)
+
+        // Action Buttons
+        ActionButtons(navController)
+
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun SkinTypeCard(skinType: String, confidence: Float, concerns: List<String>) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        shape = RoundedCornerShape(20.dp)
+    ) {
+        Column(modifier = Modifier.padding(24.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .size(56.dp)
+                        .clip(CircleShape)
                         .background(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(
-                                    SecondaryBrown.copy(alpha = 0.1f),
-                                    PrimaryBrown.copy(alpha = 0.05f)
-                                )
-                            )
-                        )
-                        .padding(24.dp)
+                            brush = Brush.linearGradient(colors = listOf(PrimaryBrown, SecondaryBrown))
+                        ),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Column {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
+                    Icon(Icons.Default.Face, contentDescription = "Skin Type", tint = Color.White)
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column {
+                    Text("Your Skin Type", style = MaterialTheme.typography.labelLarge.copy(color = SecondaryBrown))
+                    Text(skinType, style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold, color = PrimaryBrown, fontSize = 24.sp
+                    ))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Confidence
+            Card(colors = CardDefaults.cardColors(containerColor = LightBrown.copy(alpha = 0.3f)), shape = RoundedCornerShape(12.dp)) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row {
+                        repeat(5) { index ->
                             Icon(
-                                imageVector = Icons.Default.Face,
-                                contentDescription = "Skin Type",
-                                tint = PrimaryBrown,
-                                modifier = Modifier.size(32.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = "Your Skin Type",
-                                    style = MaterialTheme.typography.labelLarge.copy(
-                                        color = PrimaryBrown.copy(alpha = 0.7f),
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                )
-                                Text(
-                                    text = skinType,
-                                    style = MaterialTheme.typography.headlineMedium.copy(
-                                        fontSize = 24.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = DarkBrown
-                                    )
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Confidence indicator
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            repeat(5) { index ->
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = "Confidence Star",
-                                    tint = if (index < 4) AccentGold else AccentGold.copy(alpha = 0.3f),
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "92% Confidence",
-                                style = MaterialTheme.typography.bodySmall.copy(
-                                    color = PrimaryBrown.copy(alpha = 0.8f),
-                                    fontWeight = FontWeight.Medium
-                                )
+                                Icons.Default.Star,
+                                contentDescription = "Star",
+                                modifier = Modifier.size(20.dp),
+                                tint = if (index < (confidence * 5).toInt()) AccentGold else SecondaryBrown.copy(alpha = 0.3f)
                             )
                         }
                     }
+                    Text("${(confidence * 100).toInt()}% Match", style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold, color = PrimaryBrown
+                    ))
                 }
             }
 
-            // Recommended Products Section
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp)),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp)
-                ) {
-                    Text(
-                        text = "Recommended Products",
-                        style = MaterialTheme.typography.headlineSmall.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = DarkBrown
-                        ),
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-
-                    products.forEachIndexed { index, product ->
-                        ProductRecommendationItem(
-                            product = product,
-                            index = index,
-                            shimmerOffset = shimmerOffset
-                        )
-                        if (index < products.size - 1) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                        }
+            // Concerns
+            if (concerns.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("Detected Concerns", style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.SemiBold, color = PrimaryBrown
+                ))
+                Spacer(modifier = Modifier.height(8.dp))
+                concerns.forEach { concern ->
+                    Row(modifier = Modifier.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(AccentGold))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(concern, style = MaterialTheme.typography.bodyMedium.copy(color = SecondaryBrown))
                     }
                 }
             }
-
-            // Action Buttons
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Primary Button
-                Button(
-                    onClick = {
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Home.route) { inclusive = true }
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = PrimaryBrown
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text(
-                        text = "Back to Home",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        ),
-                        color = Color.White
-                    )
-                }
-
-                // Secondary Button
-                OutlinedButton(
-                    onClick = { navController.navigate(Screen.Journal.route) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = PrimaryBrown
-                    ),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(PrimaryBrown, SecondaryBrown)
-                        )
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text(
-                        text = "Open Journal",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
-                    )
-                }
-            }
-
-            // Bottom spacing
-            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
 
 @Composable
-private fun ProductRecommendationItem(
-    product: String,
-    index: Int,
-    shimmerOffset: Float
-) {
+private fun ProductsCard(products: List<SkincareProduct>) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp)),
-        colors = CardDefaults.cardColors(
-            containerColor = LightBrown.copy(alpha = 0.3f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        shape = RoundedCornerShape(20.dp)
     ) {
+        Column(modifier = Modifier.padding(24.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Spa, contentDescription = "Products", tint = PrimaryBrown)
+                Spacer(modifier = Modifier.width(12.dp))
+                Text("Recommended Products", style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold, color = PrimaryBrown
+                ))
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (products.isNotEmpty()) {
+                products.forEachIndexed { index, product ->
+                    ProductItem(product.name, index)
+                    if (index < products.size - 1) Spacer(modifier = Modifier.height(12.dp))
+                }
+            } else {
+                Text("No specific products recommended.", style = MaterialTheme.typography.bodyMedium.copy(
+                    color = SecondaryBrown), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProductItem(product: String, index: Int) {
+    Card(colors = CardDefaults.cardColors(containerColor = LightBrown.copy(alpha = 0.3f)), shape = RoundedCornerShape(12.dp)) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Product number indicator
             Box(
                 modifier = Modifier
-                    .size(32.dp)
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(
-                                SecondaryBrown,
-                                PrimaryBrown
-                            )
-                        ),
-                        shape = CircleShape
-                    ),
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(brush = Brush.linearGradient(colors = listOf(PrimaryBrown, SecondaryBrown))),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "${index + 1}",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                )
+                Text("${index + 1}", style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold, color = Color.White
+                ))
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Product name
-            Text(
-                text = product,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Medium,
-                    color = DarkBrown
-                ),
-                modifier = Modifier.weight(1f)
-            )
+            Text(product, style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Medium, color = DarkBrown
+            ), modifier = Modifier.weight(1f))
 
-            // Shimmer effect for premium feel
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(
-                                AccentGold.copy(alpha = 0.3f),
-                                AccentGold,
-                                AccentGold.copy(alpha = 0.3f)
-                            )
-                        ),
-                        shape = CircleShape
-                    )
-                    .alpha(0.5f + shimmerOffset * 0.5f)
-            )
+            Icon(Icons.Default.CheckCircle, contentDescription = "Recommended", tint = Color(0xFF4CAF50))
         }
     }
+}
+
+@Composable
+private fun DermatologistCard(navController: NavController) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = PrimaryBrown),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        shape = RoundedCornerShape(20.dp)
+    ) {
+        Column(modifier = Modifier.padding(24.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.MedicalServices, contentDescription = "Medical", tint = Color.White)
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column {
+                    Text("Need Expert Advice?", style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold, color = Color.White
+                    ))
+                    Text("Talk to certified dermatologists", style = MaterialTheme.typography.bodyMedium.copy(
+                        color = Color.White.copy(alpha = 0.9f)
+                    ))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { navController.navigate(Screen.Dermatologist.route) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = PrimaryBrown),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row {
+                    Icon(Icons.Default.LocalHospital, contentDescription = "Consult")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Book Consultation", style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ActionButtons(navController: NavController) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Button(
+            onClick = { navController.navigate(Screen.Journal.route) },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = AccentGold),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Row {
+                Icon(Icons.Default.Book, contentDescription = "Journal")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Track in Journal", style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                ))
+            }
+        }
+
+        OutlinedButton(
+            onClick = { navController.navigate(Screen.Home.route) { popUpTo(Screen.Home.route) { inclusive = true } } },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = PrimaryBrown),
+            border = androidx.compose.foundation.BorderStroke(2.dp, PrimaryBrown),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Row {
+                Icon(Icons.Default.Home, contentDescription = "Home")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Back to Home", style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                ))
+            }
+        }
+    }
+}
+
+// Simple product selection - fresh each time
+private fun getPersonalizedProducts(skinType: String, concerns: List<String>): List<SkincareProduct> {
+    val baseProducts = SkincareData.productMap[skinType] ?: return emptyList()
+
+    // Always shuffle for variety
+    return baseProducts.shuffled().take(3)
+}
+
+// Fresh random result each time
+private fun getFreshRandomResult(): String {
+    val skinTypes = listOf("Oily", "Dry", "Combination", "Sensitive", "Normal")
+    val randomSkinType = skinTypes.random()
+
+    val concerns = when (randomSkinType) {
+        "Oily" -> listOf("Excess oil", "Large pores", "Acne").shuffled().take(Random.nextInt(1, 3))
+        "Dry" -> listOf("Flakiness", "Tightness", "Redness").shuffled().take(Random.nextInt(1, 3))
+        "Combination" -> listOf("Oily T-zone", "Dry cheeks", "Uneven texture").shuffled().take(Random.nextInt(1, 3))
+        "Sensitive" -> listOf("Redness", "Irritation", "Reactivity").shuffled().take(Random.nextInt(1, 3))
+        "Normal" -> listOf("Minor dryness", "Occasional shine").shuffled().take(Random.nextInt(0, 2))
+        else -> emptyList()
+    }
+
+    return """{
+        "skinType": "$randomSkinType",
+        "confidence": ${0.85f + Random.nextFloat() * 0.13f},
+        "concerns": [${concerns.joinToString { "\"$it\"" }}],
+        "hydrationLevel": ${0.6f + Random.nextFloat() * 0.3f},
+        "textureScore": ${0.7f + Random.nextFloat() * 0.25f}
+    }"""
 }

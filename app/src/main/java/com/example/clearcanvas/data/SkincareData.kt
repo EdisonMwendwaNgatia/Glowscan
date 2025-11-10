@@ -1,49 +1,45 @@
 package com.example.clearcanvas.data
 
-object SkincareData {
+import com.example.clearcanvas.R
 
+data class SkincareProduct(
+    val name: String,
+    val imageResId: Int 
+)
+
+object SkincareData {
     val skinTypes = listOf("Oily", "Dry", "Combination", "Sensitive", "Normal")
 
     val productMap = mapOf(
         "Oily" to listOf(
-            "Salicylic Acid Cleanser",
-            "Charcoal Clay Mask",
-            "Oil-Free Moisturizer",
-            "Tea Tree Toner",
-            "Niacinamide Serum",
-            "Gel-based Sunscreen"
+            SkincareProduct("Salicylic Acid Cleanser", R.drawable.salicylic_cleanser),
+            SkincareProduct("Charcoal Clay Mask", R.drawable.charcoal_mask),
+            SkincareProduct("Gel-based Sunscreen", R.drawable.gel_sunscreen),
+            SkincareProduct("Benzoyl Peroxide", R.drawable.benzoyl_peroxide)
         ),
         "Dry" to listOf(
-            "Hyaluronic Acid Serum",
-            "Shea Butter Cream",
-            "Coconut Milk Cleanser",
-            "Aloe Vera Moisturizer",
-            "Ceramide Lotion",
-            "Hydrating Overnight Mask"
+            SkincareProduct("Hyaluronic Acid Serum", R.drawable.hyaluronic_serum),
+            SkincareProduct("Coconut Milk Cleanser", R.drawable.coconut_cleanser),
+            SkincareProduct("Aloe Vera Moisturizer", R.drawable.aloe_moisturizer),
+            SkincareProduct("Ceramide Lotion", R.drawable.ceramide_lotion),
         ),
         "Combination" to listOf(
-            "Balancing Gel Cleanser",
-            "Dual-Zone Moisturizer",
-            "Green Tea Toner",
-            "Oil Control Serum",
-            "Lightweight Sunscreen",
-            "Exfoliating Pads"
+            SkincareProduct("Balancing Gel Cleanser", R.drawable.balancing_cleanser),
+            SkincareProduct("Dual-Zone Moisturizer", R.drawable.dual_moisturizer),
+            SkincareProduct("Green Tea Toner", R.drawable.green_tea_toner),
+            SkincareProduct("Exfoliating Pads", R.drawable.exfoliating_pads)
         ),
         "Sensitive" to listOf(
-            "Fragrance-Free Cleanser",
-            "Oatmeal Moisturizer",
-            "Soothing Chamomile Toner",
-            "Aloe Rescue Mask",
-            "Micellar Water",
-            "Non-comedogenic SPF"
+            SkincareProduct("Fragrance-Free Cleanser", R.drawable.fragrance_free_cleanser),
+            SkincareProduct("Soothing Chamomile Toner", R.drawable.chamomile_toner),
+            SkincareProduct("Aloe Rescue Mask", R.drawable.aloe_mask)
+
         ),
         "Normal" to listOf(
-            "Daily Hydrating Lotion",
-            "Vitamin C Serum",
-            "Gentle Foaming Cleanser",
-            "Cucumber Mist Spray",
-            "Balanced pH Toner",
-            "Glow Enhancer Cream"
+            SkincareProduct("Daily Hydrating Lotion", R.drawable.hydrating_lotion),
+            SkincareProduct("Gentle Foaming Cleanser", R.drawable.foaming_cleanser),
+            SkincareProduct("Cucumber Mist Spray", R.drawable.cucumber_mist),
+            SkincareProduct("Glow Enhancer Cream", R.drawable.glow_cream)
         )
     )
 }

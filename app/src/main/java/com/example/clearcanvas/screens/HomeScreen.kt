@@ -136,7 +136,7 @@ fun HomeScreen(navController: NavController) {
             "Discover new skincare products",
             Icons.Default.LocalMall,
             PrimaryBrown,
-            "products"
+            Screen.Library.route
         ),
         FeatureCard(
             "My Profile",
