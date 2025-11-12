@@ -89,6 +89,7 @@ dependencies {
     implementation(libs.tensorflow.lite.support)
 
     implementation(libs.guava.android)
+    implementation("com.google.mlkit:face-detection:16.1.5")
 
     implementation(libs.accompanist.permissions)
 
